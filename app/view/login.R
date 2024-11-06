@@ -6,7 +6,10 @@ box::use(
 
 box::use(
   app/logic/tailwind[...],
+  app/logic/data_extraction[get_base_url, get_supported_countries],
 )
+
+countries <- get_supported_countries()
 
 #' @export
 ui <- function(id, condition) {
@@ -31,7 +34,7 @@ ui <- function(id, condition) {
                  uiOutput(ns("statusMessage")),
                  tailTextInput(ns('username'), 'DHIS2 username'),
                  tailTextInput(ns('password'), 'DHIS2 password', 'password'),
-                 tailTextInput(ns('api'), 'DHIS2 base url', 'url'),
+                 tailSelectInput(ns('country'), 'Country', countries),
                  tailActionButton(ns('login'), 'Sign in', sprintf("App.onLogin(this, '%s')", ns('login')))
             )
         )
@@ -47,8 +50,10 @@ server <- function(id, credentials) {
 
       observeEvent(input$login, {
 
+        api <- get_base_url(input$country)
+
         creds <- tryCatch(
-          khis_cred(username = input$username, password = input$password, server = input$api),
+          khis_cred(username = input$username, password = input$password, server = api),
           error = function(e) e
         )
 
@@ -57,6 +62,8 @@ server <- function(id, credentials) {
           session$sendCustomMessage("loginStatus", list(status = "error"))
           return(invisible(FALSE))
         }
+
+        session$userData$country <- input$country
 
         if (khis_has_cred(creds)) {
           credentials$auth <- creds$clone()

@@ -1,6 +1,24 @@
 box::use(
-  shiny[div, renderUI, restoreInput, tags, textOutput]
+  shiny[div, renderUI, restoreInput, selectizeInput, tags, textOutput],
+
 )
+
+#' @export
+tailSelectInput <- function(inputId, label, choices) {
+  div(
+    tailInputLabel(inputId, label),
+    div(
+      class = 'mt-2',
+      tags$select(
+        id = inputId,
+        class = 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-green-500 focus:border-green-500 p-2.5',
+        lapply(names(choices), function(name) {
+          tags$option(value = choices[[name]], name)
+        })
+      )
+    )
+  )
+}
 
 #' @export
 tailTextInput <- function(inputId, label, type='text') {

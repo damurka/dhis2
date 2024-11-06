@@ -3,7 +3,7 @@ box::use(
   shiny[...],
   bslib[...],
   rlang[`!!!`],
-  khisr[khis_base_url],
+  khisr[khis_base_url, khis_cred_clear],
   dplyr[`%>%`],
   shinycssloaders[hidePageSpinner, showPageSpinner]
 )
@@ -89,7 +89,7 @@ server <- function(id, credentials) {
       }
 
       showPageSpinner()
-      elements <- my_data_elements(credentials$auth)
+      elements <- my_data_elements(session$userData$country, credentials$auth)
       hidePageSpinner()
       return(elements)
     })
@@ -101,7 +101,7 @@ server <- function(id, credentials) {
         return(NULL)
       }
 
-      my_data_levels(credentials$auth)
+      my_data_levels(session$userData$country, credentials$auth)
     })
 
     selected_elements <- data_elements_filter$server('data_elements', data_elements, credentials)

@@ -731,7 +731,7 @@
     },
     "khisr": {
       "Package": "khisr",
-      "Version": "1.0.5",
+      "Version": "1.0.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -752,7 +752,7 @@
         "utils",
         "withr"
       ],
-      "Hash": "07d82dbaf645b015d3e7aac75dc0c857"
+      "Hash": "ac31048f4b6ac1813e97db9043468a30"
     },
     "knitr": {
       "Package": "knitr",

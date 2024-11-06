@@ -3,23 +3,46 @@ box::use(
   here[here],
   janitor[make_clean_names],
   khisr[get_analytics_by_level, get_data_elements, get_data_sets_by_level, get_organisation_unit_levels],
-  rlang[sym, `!!`],
+  rlang[sym, `!!`, check_required, is_scalar_character, set_names],
   stringr[str_to_lower],
   tidyr[hoist, unnest_longer],
   vroom[vroom]
 )
 
+#' @export
+get_supported_countries <- function() {
+  dt <- vroom('app/data/country.csv.xz', show_col_types = FALSE) %>%
+    filter(!is.na(dhis2_url))
+
+  set_names(dt$iso3, dt$country)
+}
 
 #' @export
-my_data_elements <- function(auth) {
+get_base_url <- function(country_iso3) {
 
-  data <- case_match(auth$get_base_url(),
-                     "https://hiskenya.org/api" ~'kenya.csv.xz',
-                     "https://dhis.moh.go.tz/api" ~ 'tanzania.csv.xz',
-                     .default = NULL)
+  check_required(country_iso3)
 
-  if (!is.null(data) && !is.na(data)) {
-    return(vroom(here(paste('app/data', data, sep = '/'))))
+  if (!is_scalar_character(country_iso3)) {
+    stop('country_iso3 should be a scalar string')
+  }
+
+  dt <- vroom('app/data/country.csv.xz', show_col_types = FALSE) %>%
+    filter(!is.na(dhis2_url), iso3 == country_iso3)
+
+  if (NROW(dt) == 0) {
+    return(NULL)
+  } else {
+    return(dt %>% pull(dhis2_url))
+  }
+}
+
+
+#' @export
+my_data_elements <- function(iso3, auth) {
+
+  file <- paste0('app/data/data_elements_', tolower(iso3), '.csv.xz')
+  if (file.exists(file)) {
+    return(vroom(file, show_col_types = FALSE))
   }
 
   get_data_elements(fields = c('id','name','categoryCombo[categoryOptionCombos[id,name]]', 'dataSetElements[dataSet[id,name]], dataElementGroups[id,name]'),
@@ -47,7 +70,12 @@ my_data_elements <- function(auth) {
 }
 
 #' @export
-my_data_levels <- function(auth) {
+my_data_levels <- function(iso3, auth) {
+  file <- paste0('app/data/organization_unit_levels_', tolower(iso3), '.csv.xz')
+  if (file.exists(file)) {
+    return(vroom(file, show_col_types = FALSE) %>% arrange(level))
+  }
+
   get_organisation_unit_levels(fields = 'level,name', auth = auth) %>%
     arrange(level)
 }
