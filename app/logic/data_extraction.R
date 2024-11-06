@@ -32,7 +32,7 @@ get_base_url <- function(country_iso3) {
   if (NROW(dt) == 0) {
     return(NULL)
   } else {
-    return(dt %>% pull(dhis2_url))
+    return(dt)
   }
 }
 

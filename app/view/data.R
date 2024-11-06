@@ -89,7 +89,7 @@ server <- function(id, credentials) {
       }
 
       showPageSpinner()
-      elements <- my_data_elements(session$userData$country, credentials$auth)
+      elements <- my_data_elements(session$userData$iso3, credentials$auth)
       hidePageSpinner()
       return(elements)
     })
@@ -101,7 +101,7 @@ server <- function(id, credentials) {
         return(NULL)
       }
 
-      my_data_levels(session$userData$country, credentials$auth)
+      my_data_levels(session$userData$iso3, credentials$auth)
     })
 
     selected_elements <- data_elements_filter$server('data_elements', data_elements, credentials)
@@ -193,7 +193,7 @@ server <- function(id, credentials) {
 
       HTML(paste(
         "<span style='font-size:14px;'>", username, "</span><br>",
-        "<span style='font-size:12px;'>", khis_base_url(credentials$auth), "</span>"
+        "<span style='font-size:12px;'>", session$userData$country, "</span>"
       ))
     })
   }

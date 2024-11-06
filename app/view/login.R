@@ -50,10 +50,10 @@ server <- function(id, credentials) {
 
       observeEvent(input$login, {
 
-        api <- get_base_url(input$country)
+        country <- get_base_url(input$country)
 
         creds <- tryCatch(
-          khis_cred(username = input$username, password = input$password, server = api),
+          khis_cred(username = input$username, password = input$password, server = country$dhis2_url),
           error = function(e) e
         )
 
@@ -63,7 +63,8 @@ server <- function(id, credentials) {
           return(invisible(FALSE))
         }
 
-        session$userData$country <- input$country
+        session$userData$iso3 <- input$country
+        session$userData$country <- country$country
 
         if (khis_has_cred(creds)) {
           credentials$auth <- creds$clone()
