@@ -6,15 +6,51 @@ box::use(
 #' @export
 tailSelectInput <- function(inputId, label, choices) {
   div(
-    tailInputLabel(inputId, label),
+    div(
+      class = 'mt-2 flex items-center justify-between',
+      div(
+        class = 'flex items-start',
+        tailInputLabel(inputId, label),
+      ),
+      div(
+        class = 'flex items-end',
+        div(
+          class = 'flex items-center h-5',
+          tags$input(
+            type = 'checkbox',
+            id = paste0(inputId, "-manual-toggle"),
+            class = 'w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800',
+            onchange = sprintf("
+            let isChecked = this.checked;
+            document.getElementById('%s-select').style.display = isChecked ? 'none' : 'block';
+            document.getElementById('%s-text-container').style.display = isChecked ? 'block' : 'none';
+            document.getElementById('%s-label').innerText = isChecked ? 'Enter DHIS2 Base Url' : '%s';
+          ", inputId, inputId, inputId, label)
+          )
+        ),
+        div(
+          class = 'ml-3 text-sm',
+          tags$label("Enter URL manually", `for` = paste0(inputId, "-manual-toggle"), class = "text-gray-500")
+        )
+      )
+    ),
     div(
       class = 'mt-2',
       tags$select(
-        id = inputId,
+        id = paste0(inputId, "-select"),
         class = 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-green-500 focus:border-green-500 p-2.5',
+        onchange = sprintf("document.getElementById('%s-text').value = this.value;", inputId),
         lapply(names(choices), function(name) {
           tags$option(value = choices[[name]], name)
         })
+      )
+    ),
+    div(
+      id = paste0(inputId, "-text-container"),
+      class = "mt-2 hidden",
+      tailTextInput(
+        inputId = paste0(inputId, "-text"),
+        label = NULL # No need for duplicate label
       )
     )
   )
@@ -26,7 +62,7 @@ tailTextInput <- function(inputId, label, type='text') {
     tailInputLabel(inputId, label),
     div(class = 'mt-2',
         tags$input(id = inputId, type = type,
-                   class = 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm sm:leading-6')
+                   class = 'block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-green-600 sm:text-sm')
     )
   )
 }
