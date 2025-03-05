@@ -6,6 +6,7 @@ box::use(
   rlang[sym, `!!`, check_required, is_scalar_character, set_names],
   stringr[str_to_lower],
   tidyr[hoist, unnest_longer],
+  readr[read_csv],
   vroom[vroom]
 )
 
@@ -148,10 +149,11 @@ filter_by_orgs <- function(.data, orgs, data_levels, org_level) {
     pull(name) %>%
     make_clean_names()
 
-  print(col)
-  print(orgs)
-
   .data %>%
     filter(!!sym(col) %in% orgs)
 }
 
+#' @export
+get_sheet_data <- function() {
+  read_csv('app/data/sheet_data.csv', show_col_types = FALSE)
+}

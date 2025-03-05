@@ -3,14 +3,14 @@ box::use(
 )
 
 #' @export
-ui <- function(id) {
+ui <- function(id, name = 'Data Elements', placeholder = 'Select the data elements') {
   ns <- NS(id)
   selectizeInput(
     ns("data_element"),
-    "Data Elements",
+    name,
     choices = NULL,
     multiple = TRUE,
-    options = list(placeholder = 'Select the data elements')
+    options = list(placeholder = placeholder)
   )
 }
 

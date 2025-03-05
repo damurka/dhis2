@@ -22,7 +22,7 @@ ui <- function(id, condition) {
         div(class = "sm:mx-auto sm:w-full sm:max-w-sm",
             tags$img(
               class="mx-auto h-auto w-4/5",
-              src = "/static/img/logo.svg", alt = "CD2030 Data Extractor Logo"
+              src = "static/img/logo.svg", alt = "CD2030 Data Extractor Logo"
             ),
             tags$h2(
               "Enter your DHIS2 account",

@@ -10,11 +10,13 @@ box::use(
 
 box::use(
   app/logic/data_extraction[my_data_analytics, my_data_elements, my_data_levels, my_datasets],
+  app/view/countdown_data_page,
   app/view/data_completeness_page,
   app/view/data_elements_filter,
   app/view/data_filters_page,
   app/view/data_levels_filter,
   app/view/service_data_page,
+  app/view/population_data_page,
 )
 
 options(
@@ -66,6 +68,14 @@ ui <- function(id) {
       title = 'Reporting Completeness',
       data_completeness_page$ui(ns('data_completeness'))
     ),
+    nav_panel(
+      title = 'Population Data',
+      population_data_page$ui(ns('population_data'))
+    ),
+    nav_panel(
+      title = 'Countdown Data',
+      countdown_data_page$ui(ns('countdown_data'))
+    ),
     nav_spacer(),
     nav_menu(
       title = uiOutput(ns("profile_menu")),
@@ -108,6 +118,9 @@ server <- function(id, credentials) {
     selected_level <- data_levels_filter$server('data_levels', data_levels, credentials)
 
     filters <- data_filters_page$server('data_filters', data_elements, selected_elements, data_levels, selected_level, credentials)
+
+    population_data_page$server('population_data', data_elements, selected_level, reactive(input$date), credentials)
+    countdown_data_page$server('countdown_data', data_elements, selected_level, reactive(input$date), credentials)
 
     selected_elements_bound <- reactive({
       # req(credentials$auth)
