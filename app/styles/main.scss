@@ -33,10 +33,18 @@
 
 }
 
+/*.bslib-page-sidebar>.navbar {
+  background-color: ;
+}*/
+
+.bslib-page-sidebar {
+    --bslib-page-sidebar-title-bg: #7bc148;
+}
+
 .navbar {
   //--bs-navbar-brand-color: #fff;
   --bs-navbar-brand-hover-color: #f3f8ef;
-  //--bslib-page-sidebar-title-bg: #7bc148;
+  --bslib-page-sidebar-title-bg: #7bc148;
   --bslib-navbar-default-bg: #7bc148;
 }
 

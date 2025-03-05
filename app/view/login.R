@@ -22,7 +22,7 @@ ui <- function(id, condition) {
         div(class = "sm:mx-auto sm:w-full sm:max-w-sm",
             tags$img(
               class="mx-auto h-auto w-4/5",
-              src = "/static/img/logo.svg", alt = "CD2030 Data Extractor Logo"
+              src = "static/img/logo.svg", alt = "CD2030 Data Extractor Logo"
             ),
             tags$h2(
               "Enter your DHIS2 account",
@@ -49,11 +49,15 @@ server <- function(id, credentials) {
     module = function(input, output, session) {
 
       observeEvent(input$login, {
+        use_manual <- input[[paste0("country-manual-toggle")]]
+        manual_url <- input[[paste0("country-text")]]
+        country_input <- input[[paste0("country-select")]]
+        dhis2_url <- if (use_manual) manual_url else get_base_url(country_input)$dhis2_url
 
-        country <- get_base_url(input$country)
+        country <- if (!use_manual) get_base_url(country_input) else NULL
 
         creds <- tryCatch(
-          khis_cred(username = input$username, password = input$password, server = country$dhis2_url),
+          khis_cred(username = input$username, password = input$password, server = dhis2_url),
           error = function(e) e
         )
 
@@ -63,8 +67,8 @@ server <- function(id, credentials) {
           return(invisible(FALSE))
         }
 
-        session$userData$iso3 <- input$country
-        session$userData$country <- country$country
+        session$userData$iso3 <- if (!is.null(country)) country$iso3
+        session$userData$country <- if (!is.null(country)) country$country else dhis2_url
 
         if (khis_has_cred(creds)) {
           credentials$auth <- creds$clone()
