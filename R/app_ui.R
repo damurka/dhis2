@@ -5,6 +5,8 @@
 #' @noRd
 app_ui <- function(request) {
 
+  supported_countries <- get_supported_countries()
+
   page_fillable(
     theme = bs_theme(version = 5),
     golem_add_external_resources(),
@@ -12,7 +14,7 @@ app_ui <- function(request) {
       condition = "output.loggedIn === false",
       style = "display: none;",
       class = 'min-h-full',
-      mod_login_page_ui("login_page_1")
+      mod_login_page_ui("login_page_1", supported_countries)
     ),
     conditionalPanel(
       condition = "output.loggedIn === true",

@@ -5,6 +5,8 @@
 #' @noRd
 app_server <- function(input, output, session) {
 
+  plan(multisession)
+
   credentials <- rv(auth = NULL)
 
   output$loggedIn <- reactive({

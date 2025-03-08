@@ -5,7 +5,7 @@
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd
-mod_login_page_ui <- function(id) {
+mod_login_page_ui <- function(id, supported_countries) {
   ns <- NS(id)
   page_fillable(
     tags$script(src = "https://cdn.tailwindcss.com"),
@@ -26,9 +26,8 @@ mod_login_page_ui <- function(id) {
                       uiOutput(ns("statusMessage")),
                       tailTextInput(ns('username'), 'DHIS2 username'),
                       tailTextInput(ns('password'), 'DHIS2 password', 'password'),
-                      tailSelectInput(ns('country'), 'Country', c('Kenya')),
-                      uiOutput(ns('select_url')),
-                      tailActionButton(ns('login'), 'Sign in', sprintf("App.onLogin(this, '%s')", ns('login')))
+                      tailwind_select(ns('country'), 'Country', supported_countries),
+                      tailActionButton(ns('login'), 'Sign in', sprintf("onLogin(this, '%s')", ns('login')))
             )
         )
     )
@@ -42,5 +41,53 @@ mod_login_page_server <- function(id, credentials){
   moduleServer(id, function(input, output, session){
     ns <- session$ns
 
+    country <- tailwind_select_server('country')
+
+    dhis2_url <- reactive({
+      req(country())
+      country()$url
+    })
+
+    observeEvent(input$login, {
+      req(dhis2_url())
+
+      if (is.null(input$username) || nchar(input$username) == 0) {
+        output$statusMessage <- renderTailText('Username is missing.', TRUE)
+        invoke_js('loginStatus', list(id = ns('login')))
+        return(invisible(FALSE))
+      }
+
+      if (is.null(input$password) || nchar(input$password) == 0) {
+        output$statusMessage <- renderTailText('Password is missing.', TRUE)
+        invoke_js('loginStatus', list(id = ns('login')))
+        return(invisible(FALSE))
+      }
+
+      creds <- tryCatch(
+        khis_cred(username = input$username, password = input$password, server = dhis2_url()),
+        error = function(e) e
+      )
+
+      if (inherits(creds, 'error')) {
+        output$statusMessage <- renderTailText(creds$message, TRUE)
+        invoke_js('loginStatus', list(id = ns('login')))
+        return(invisible(FALSE))
+      }
+
+      session$userData$iso2 <- if (not_null(country()$country)) country()$country$iso2 else NULL
+      session$userData$country <- if (not_null(country()$country)) country()$country$country else dhis2_url()
+
+      if (khis_has_cred(creds)) {
+        credentials$auth <- creds$clone()
+        updateTextInput(session, "password", value = "")
+        output$statusMessage <- renderTailText('')
+        invoke_js('loginStatus', list(id = ns('login')))
+      } else {
+        output$statusMessage <- renderTailText("Login failed. Check your credentials.", TRUE)
+        invoke_js('loginStatus', list(id = ns('login')))
+      }
+
+      khis_cred_clear()
+    })
   })
 }

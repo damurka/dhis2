@@ -22,6 +22,7 @@ attachment::att_amend_desc()
 ## Create a module infrastructure in R/
 golem::add_module(name = "login_page", with_test = TRUE)
 golem::add_module(name = "data_page", with_test = TRUE)
+golem::add_module(name = "filter_page", with_test = TRUE)
 golem::add_module(name = "service_page", with_test = TRUE) # Name of the module
 golem::add_module(name = "completeness_page", with_test = TRUE) # Name of the module
 golem::add_module(name = "population_page", with_test = TRUE)
@@ -29,8 +30,19 @@ golem::add_module(name = "countdown_page", with_test = TRUE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*
-golem::add_fct("helpers", with_test = TRUE)
+golem::add_fct("filter_helpers", with_test = TRUE)
+golem::add_fct("get_country", with_test = TRUE)
+golem::add_fct("get_data_levels", with_test = TRUE)
+golem::add_fct("get_data_elements_", with_test = TRUE)
+golem::add_fct('get_organisations', with_test = TRUE)
+golem::add_fct('get_data_analytics_', with_test = TRUE)
+golem::add_fct('get_datasets_', with_test = TRUE)
+
 golem::add_utils("tailwind_ui", with_test = TRUE)
+golem::add_utils("tailwind_select", with_test = TRUE)
+golem::add_utils("data_levels_select", with_test = TRUE)
+golem::add_utils("data_elements_select", with_test = TRUE)
+golem::add_utils("organisations_select", with_test = TRUE)
 
 ## External resources
 ## Creates .js and .css files at inst/app/www
@@ -42,7 +54,8 @@ golem::add_any_file("file.json")
 
 ## Add internal datasets ----
 ## If you have data in your package
-usethis::use_data_raw(name = "my_dataset", open = FALSE)
+# usethis::use_data_raw(name = "my_dataset", open = FALSE)
+usethis::use_data(country, data_elements, org_levels, internal = TRUE, overwrite = T, compress = 'xz')
 
 ## Tests ----
 ## Add one line by test you want to create
