@@ -8,6 +8,15 @@
 \description{
 A Shiny application for extracting and managing data from DHIS2. It provides an interactive interface to query, filter, and export DHIS2 data for further analysis. Designed for efficiency and ease of use in data-driven decision-making.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://aphrcwaro.github.io/dhis2}
+  \item \url{https://github.com/aphrcwaro/dhis2}
+  \item Report bugs at \url{https://github.com/aphrcwaro/dhis2/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: David Kariuki \email{hello@damurka.com}
 

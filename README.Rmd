@@ -23,7 +23,7 @@ output: github_document
 You can install the development version of `{cd2030.extractor}` like so:
 
 ```{r}
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github('aphrcwaro/dhis2')
 ```
 
 ## Run
@@ -34,26 +34,7 @@ You can launch the application by running:
 cd2030.extractor::run_app()
 ```
 
-## About
+## Code of Conduct
 
-You are reading the doc about version : `r golem::pkg_version()`
+Please note that the khisr project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
 
-This README has been compiled on the
-
-```{r}
-Sys.time()
-```
-
-Here are the tests results and package coverage:
-
-```{r, error = TRUE}
-devtools::check(quiet = TRUE)
-```
-
-```{r echo = FALSE}
-unloadNamespace("cd2030.extractor")
-```
-
-```{r, error = TRUE}
-covr::package_coverage()
-```

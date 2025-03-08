@@ -33,12 +33,12 @@ app_ui <- function(request) {
 #' @noRd
 golem_add_external_resources <- function() {
   add_resource_path(
-    "r",
+    "www",
     app_sys("app/www")
   )
 
   tags$head(
-    favicon(resources_path = 'r'),
+    favicon(),
     bundle_resources(
       path = app_sys("app/www"),
       app_title = "dhis2"
