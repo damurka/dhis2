@@ -1,0 +1,19 @@
+---
+title: "dhis2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dhis2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(cd2030.extractor)
+```

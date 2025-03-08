@@ -1,0 +1,48 @@
+Package: cd2030.extractor
+Title: CD2030 Data Extractor
+Version: 0.0.0.9000
+Authors@R: c(
+    person("David", "Kariuki", , "hello@damurka.com", role = c("aut", "cre")),
+    person("Martin", "Mutua", role = "aut"),
+    person("Peter", "Kaberia", , "pkaberia@aphrc.org", role = "aut"),
+    person("Godfrey", "Adero", , "gadero@aphrc.org", role = "aut"),
+    person("Rornald", "Muhumuza", , "rmuhumuza@aphrc.org", role = "aut"),
+    person("African Population and Health Research Center (APHRC)", role = c("cph", "fnd"))
+  )
+Description: A Shiny application for extracting and managing data from DHIS2.  
+    It provides an interactive interface to query, filter, and export DHIS2 data  
+    for further analysis. Designed for efficiency and ease of use in data-driven  
+    decision-making.
+License: AGPL (>= 3)
+Imports: 
+    bslib,
+    config,
+    crosstalk,
+    dplyr,
+    future,
+    golem,
+    janitor,
+    khisr,
+    lubridate,
+    markdown,
+    promises,
+    purrr,
+    reactable,
+    rlang,
+    rmarkdown,
+    shiny,
+    shinycssloaders,
+    stringr,
+    tidyr
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Suggests: 
+    knitr,
+    spelling,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Language: en-US
+VignetteBuilder: knitr
+Depends: 
+    R (>= 3.5)
