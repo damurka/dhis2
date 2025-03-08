@@ -2,7 +2,7 @@
 # sass::sass(input = sass::sass_file("inst/app/www/custom.sass"), output = "inst/app/www/custom.css", cache = NULL)
 
 # Set options here
-options(golem.app.prod = FALSE) # TRUE = production mode, FALSE = development mode
+options(golem.app.prod = TRUE) # TRUE = production mode, FALSE = development mode
 
 # Comment this if you don't want the app to be served on a random port
 options(shiny.port = httpuv::randomPort())
