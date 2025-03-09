@@ -1,53 +1,27 @@
-#' Filter Page UI Function
+#' filter_page UI Function
 #'
-#' Creates the UI for the filter page, including an organisation selection input
-#' and a data table.
+#' @description A shiny Module.
 #'
-#' @param id Character. The module ID for namespacing UI elements.
-#'
-#' @return A Shiny UI layout with organisation selection and a `reactableOutput`
-#'   table.
+#' @param id,input,output,session Internal parameters for {shiny}.
 #'
 #' @noRd
+#'
+#' @importFrom shiny NS tagList
 mod_filter_page_ui <- function(id) {
   ns <- NS(id)
-  page_fillable(
-    layout_columns(
-      col_widths = c(12, 12),
-      row_heights = list("auto", 1),
-      organisations_select(ns('filter')),
-      reactableOutput(ns("table"))
-    )
+  withSpinner(
+    reactableOutput(ns("table"))
   )
 }
 
-#' Filter Page Server Function
-#'
-#' Handles data filtering based on selected organisations and data elements,
-#' providing an interactive table.
-#'
-#' @param id Character. The module ID for namespacing.
-#' @param data_elements Reactive. A reactive expression containing data elements.
-#' @param data_levels Reactive. A reactive expression containing available data
-#'   levels.
-#' @param credentials List. Authentication credentials for accessing organisation
-#'   data.
-#'
-#' @return A reactive list containing:
-#'   - orgs Reactive vector of selected organisations.
-#'   - data_elements  Reactive filtered dataset including only selected elements.
+#' filter_page Server Functions
 #'
 #' @noRd
-mod_filter_page_server <- function(id, data_elements, data_levels, credentials){
-  stopifnot(is.reactive(data_elements))
-  stopifnot(is.reactive(data_levels))
-
+mod_filter_page_server <- function(id, data_elements){
   moduleServer(
     id = id,
-    module = function(input, output, session){
+    module = function(input, output, session) {
       ns <- session$ns
-
-      orgs <- organisations_select_server('filter', data_levels, credentials)
 
       data <- reactive({
         data_elements()$items %>%
@@ -65,6 +39,11 @@ mod_filter_page_server <- function(id, data_elements, data_levels, credentials){
           rows = seq_len(nrow(df))
         }
         rows
+      })
+
+      selected_data_elements <- reactive({
+        data()$data(withSelection = TRUE) %>%
+          filter(selected_ == TRUE | all(is.na(selected_)))
       })
 
       output$table <- renderReactable(
@@ -91,13 +70,7 @@ mod_filter_page_server <- function(id, data_elements, data_levels, credentials){
         )
       )
 
-      return(reactive(
-        list(
-          orgs = orgs(),
-          data_elements = data()$data(withSelection = TRUE) %>%
-            filter(selected_ == TRUE | all(is.na(selected_)))
-        )
-      ))
+      return(selected_data_elements)
     }
   )
 }

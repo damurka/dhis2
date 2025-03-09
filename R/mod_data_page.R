@@ -14,7 +14,7 @@ mod_data_page_ui <- function(id) {
     sidebar = sidebar(
       title = 'Data Controls',
       data_levels_select(ns('data_levels')),
-      data_elements_select(ns('data_elements')),
+      organisations_select(ns('orgs_filter')),
       dateRangeInput(
         ns("date"),
         "Data Period",
@@ -22,25 +22,16 @@ mod_data_page_ui <- function(id) {
         end = Sys.Date(),
         startview = 'year',
         format = 'M dd, yyyy'
-      ),
-      actionButton(ns("btn"), "Retrieve Data")
+      )
     ),
     nav_spacer(),
     nav_panel(
-      title = 'Data Filters',
-      mod_filter_page_ui(ns('filter_page_1'))
-    ),
-    nav_panel(
       title = 'Service Data',
-      mod_service_page_ui(ns('service_page_1'))
-    ),
-    nav_panel(
-      title = 'Reporting Completeness',
-      mod_completeness_page_ui(ns('completeness_page_1'))
+      mod_service_group_page_ui(ns('filter_page_1'))
     ),
     nav_panel(
       title = 'Population Data',
-      mod_population_page_ui(ns('population_page_1'))
+      mod_population_group_page_ui(ns('population_group_page_1'))
     ),
     nav_panel(
       title = 'Countdown Data',
@@ -64,52 +55,12 @@ mod_data_page_server <- function(id, credentials){
     ns <- session$ns
 
     data_levels <- data_levels_select_server('data_levels', credentials)
-    data_elements <- data_elements_select_server('data_elements', credentials)
-    selected_data_elements <- mod_filter_page_server('filter_page_1', data_elements, data_levels, credentials)
+    selected_orgs <- organisations_select_server('filter', data_levels, credentials)
 
-    data_analytics <- eventReactive(c(input$btn, input$logout), {
-      req(credentials$auth, data_elements()$selected, data_levels()$selected, input$date)
+    mod_service_group_page_server('filter_page_1', data_levels, selected_orgs, reactive(input$logout), reactive(input$date), credentials)
+    mod_population_group_page_server('population_group_page_1', data_levels, selected_orgs, reactive(input$logout), reactive(input$date), credentials)
 
-      tryCatch(
-        get_data_analytics_(
-          element_ids = data_elements()$selected,
-          level = data_levels()$selected,
-          start_date = input$date[1],
-          end_date = input$date[2],
-          auth = credentials$auth
-        ),
-        error = function(e) e
-      )
-    })
-
-    datasets <- eventReactive(c(input$btn, input$logout), {
-      req(credentials$auth, data_elements()$items, data_elements()$selected, data_levels()$selected, input$date)
-
-      tryCatch(
-        get_datasets_(
-          data_elements = data_elements()$items,
-          element_id = data_elements()$selected,
-          level = data_levels()$selected,
-          start_date = input$date[1],
-          end_date = input$date[2],
-          auth = credentials$auth
-        ),
-        error = function(e) e
-      )
-    })
-
-    mod_service_page_server('service_page_1', data_analytics, data_levels, selected_data_elements)
-    mod_completeness_page_server("completeness_page_1", datasets, data_levels, selected_data_elements)
-    mod_population_page_server('population_page_1', data_levels, reactive(input$date), credentials)
     mod_countdown_page_server("countdown_page_1")
-
-    observeEvent(input$btn, {
-      req(credentials$auth)
-
-      if (is.null(data_elements()$selected)) {
-        showNotification("No data elements are selected", type = "error", duration=5)
-      }
-    })
 
     observeEvent(input$logout, {
       khis_cred_clear(credentials$auth)

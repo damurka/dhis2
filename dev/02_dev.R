@@ -27,6 +27,8 @@ golem::add_module(name = "service_page", with_test = TRUE) # Name of the module
 golem::add_module(name = "completeness_page", with_test = TRUE) # Name of the module
 golem::add_module(name = "population_page", with_test = TRUE)
 golem::add_module(name = "countdown_page", with_test = TRUE)
+golem::add_module(name = "custom_service_page", with_test = TRUE)
+golem::add_module(name = "population_group_page", with_test = TRUE)
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*

@@ -53,17 +53,17 @@ get_population_data_analytics <- function(data_elements, element_ids, start_date
     dx %.d% element_ids,
     pe %.d% pop_periods,
     ou %.d% paste0('LEVEL-', level),
+    co %.d% 'all',
     auth = auth
   )
   orgs <- get_organisations_by_level(org_ids = data$ou, level = as.integer(level), auth = auth)
   data_els <- data_elements %>%
-    select(element_id, element) %>%
+    select(element_id, element, category_id, category) %>%
     distinct()
 
   data %>%
-    left_join(data_els, join_by(dx == element_id)) %>%
+    left_join(data_els, join_by(dx == element_id, co == category_id)) %>%
     left_join(orgs, join_by(ou == id)) %>%
     mutate(year = as.integer(pe)) %>%
-    select(-dx, -ou, -pe) %>%
-    pivot_wider(names_from = element, values_from = value)
+    select(-dx, -ou, -pe, -co)
 }
