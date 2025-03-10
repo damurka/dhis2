@@ -7,19 +7,25 @@
 #' @noRd
 my_summary <- function(.data, data_levels, org_level, .by, ...) {
 
-  org_cols <- data_levels %>%
-    filter(level <= org_level) %>%
-    mutate(name = str_to_lower(name)) %>%
-    pull(name) %>%
-    make_clean_names()
+  org_cols <- get_organisation_cols(data_levels, org_level)
 
   .data %>%
     arrange(across(any_of(c(org_cols, 'year', 'month')))) %>%
     summarise(
       ...,
-      .by = all_of(c(org_cols, .by))
+      .by = any_of(c(org_cols, .by))
     )
 
+}
+
+#' @noRd
+get_organisation_cols <- function(data_levels, org_level) {
+
+  data_levels %>%
+    filter(level <= org_level) %>%
+    mutate(name = str_to_lower(name)) %>%
+    pull(name) %>%
+    make_clean_names()
 }
 
 #' @noRd

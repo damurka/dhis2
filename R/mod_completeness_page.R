@@ -7,29 +7,33 @@
 #' @noRd
 mod_completeness_page_ui <- function(id) {
   ns <- NS(id)
-  card(
-    card_header(
-      'Service Data',
-      actionButton(ns('button'),
-                   label = 'Download as CSV',
-                   icon = icon("download"),
-                   onclick = sprintf("Reactable.downloadDataCSV('%s', 'data-completeness-%s.csv')", ns('table'), format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
-
-      )
-    ),
-    withSpinner(
-      reactableOutput(ns("table"))
-    )
+  withSpinner(
+    reactableOutput(ns("table"))
   )
+  # card(
+  #   card_header(
+  #     'Service Data',
+  #     actionButton(ns('button'),
+  #                  label = 'Download as CSV',
+  #                  icon = icon("download"),
+  #                  onclick = sprintf("Reactable.downloadDataCSV('%s', 'data-completeness-%s.csv')", ns('table'), format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
+  #
+  #     )
+  #   ),
+  #   withSpinner(
+  #     reactableOutput(ns("table"))
+  #   )
+  # )
 }
 
 #' completeness_page Server Functions
 #'
 #' @noRd
-mod_completeness_page_server <- function(id, datasets, data_levels, filters) {
+mod_completeness_page_server <- function(id, datasets, data_levels, selected_data_elements, selected_orgs) {
   stopifnot(is.reactive(datasets))
   stopifnot(is.reactive(data_levels))
-  stopifnot(is.reactive(filters))
+  stopifnot(is.reactive(selected_data_elements))
+  stopifnot(is.reactive(selected_orgs))
 
   moduleServer(
     id = id,
@@ -37,7 +41,7 @@ mod_completeness_page_server <- function(id, datasets, data_levels, filters) {
       ns <- session$ns
 
       dataset_filter <- reactive({
-        filters()$data_elements %>%
+        selected_data_elements() %>%
           distinct(dataset) %>%
           pull(dataset)
       })
@@ -71,7 +75,7 @@ mod_completeness_page_server <- function(id, datasets, data_levels, filters) {
             names_glue = '{dataset}_{.value}',
             values_fill = 0
           ) %>%
-          filter_by_orgs(filters()$orgs, data_levels()$items, data_levels()$selected)
+          filter_by_orgs(selected_orgs(), data_levels()$items, data_levels()$selected)
       })
 
       dataset_names <- reactive({
