@@ -48,10 +48,6 @@ mod_population_page_server <- function(id, data_analytics, data_levels, selected
           return(tibble(error = 'No data was returned for the specified period'))
         }
 
-        print(glimpse(custom_groups()))
-
-        print(glimpse(dt))
-
         summarised_with_groups <- dt %>%
           left_join(custom_groups(), join_by(element, category)) %>%
           my_summary(

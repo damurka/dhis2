@@ -57,7 +57,7 @@ golem::add_any_file("file.json")
 ## Add internal datasets ----
 ## If you have data in your package
 # usethis::use_data_raw(name = "my_dataset", open = FALSE)
-usethis::use_data(country, data_elements, org_levels, internal = TRUE, overwrite = T, compress = 'xz')
+usethis::use_data(country, data_elements, org_levels, hfd, internal = TRUE, overwrite = T, compress = 'xz')
 
 ## Tests ----
 ## Add one line by test you want to create
