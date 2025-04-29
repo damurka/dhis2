@@ -17,7 +17,7 @@ data_elements_select <- function(id, name = 'Data Elements', placeholder = 'Sele
 }
 
 #' @noRd
-data_elements_select_server <- function(id, credentials) {
+data_elements_select_server <- function(id, credentials, use_dataset = FALSE) {
 
   moduleServer(
     id = id,
@@ -28,15 +28,24 @@ data_elements_select_server <- function(id, credentials) {
         req(credentials$auth)
 
         iso2 <- session$userData$iso2
-        get_data_elements_(iso2, credentials$auth)
+        get_cached_data_elements(iso2, credentials$auth)
       })
 
       observe({
         req(data_elements())
 
         elements <- data_elements()
-        choices <- data_elements()$element_id
-        names(choices) <- data_elements()$element
+
+        if (use_dataset) {
+          els <- elements %>%
+            distinct(dataset_id, dataset)
+
+          choices <- els$dataset_id
+          names(choices) <- els$dataset
+        } else {
+          choices <- elements$element_id
+          names(choices) <- elements$element
+        }
 
         # Update selectize input with new choices
         updateSelectizeInput(session, "data_element", choices = choices, selected = NULL, server = TRUE)

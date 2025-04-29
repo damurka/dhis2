@@ -74,7 +74,7 @@ mod_login_page_server <- function(id, credentials){
         return(invisible(FALSE))
       }
 
-      session$userData$iso2 <- if (not_null(country()$country)) country()$country$iso2 else NULL
+      session$userData$iso2 <- if (not_null(country()$country)) country()$country$iso2 else dhis2_url()
       session$userData$country <- if (not_null(country()$country)) country()$country$country else dhis2_url()
 
       if (khis_has_cred(creds)) {

@@ -82,6 +82,7 @@ mod_service_group_page_server <- function(id, data_levels, selected_orgs, logout
             level = data_levels()$selected,
             start_date = selected_date()[1],
             end_date = selected_date()[2],
+            country_iso2 = session$userData$iso2,
             auth = credentials$auth
           ),
           error = function(e) e

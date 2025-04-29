@@ -24,6 +24,8 @@ mod_filter_page_server <- function(id, data_elements){
       ns <- session$ns
 
       data <- reactive({
+        req(data_elements(), data_elements()$items)
+
         data_elements()$items %>%
           filter(element_id %in% data_elements()$selected) %>%
           distinct(element, category, .keep_all = TRUE) %>%
@@ -56,6 +58,7 @@ mod_filter_page_server <- function(id, data_elements){
                   borderless = TRUE,
                   striped = TRUE,
                   highlight = TRUE,
+                  resizable = TRUE,
                   rowStyle = list(cursor = "pointer"),
                   columns = list(
                     element_group = colDef(name = 'Data Element Group'),
