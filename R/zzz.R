@@ -1,4 +1,8 @@
 .onLoad <- function(libname, pkgname) {
+
+  get_data_elements_ <<- memoise(get_data_elements_, omit_args = 'auth')
+  get_organisations <<- memoise(get_organisations, omit_args = 'auth')
+
   options(
     reactable.theme = reactableTheme(
       borderColor = '#e0ebd3',
@@ -11,4 +15,6 @@
       cellStyle = list(whiteSpace = 'nowrap')
     )
   )
+
+  invisible()
 }

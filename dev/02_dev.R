@@ -39,6 +39,7 @@ golem::add_fct("get_data_elements_", with_test = TRUE)
 golem::add_fct('get_organisations', with_test = TRUE)
 golem::add_fct('get_data_analytics_', with_test = TRUE)
 golem::add_fct('get_datasets_', with_test = TRUE)
+golem::add_fct('create_excel', with_test = TRUE)
 
 golem::add_utils("tailwind_ui", with_test = TRUE)
 golem::add_utils("tailwind_select", with_test = TRUE)

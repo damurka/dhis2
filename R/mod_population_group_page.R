@@ -56,19 +56,19 @@ mod_population_group_page_server <- function(id, data_levels, selected_orgs, log
       data_analytics <- eventReactive(c(input$retrieve, logout_event), {
         req(credentials$auth, data_elements()$items, data_elements()$selected, selected_date(), data_levels()$selected)
 
-        get_population_data_analytics(
-          data_elements = data_elements()$items,
+        get_data_analytics_(
           element_ids = data_elements()$selected,
           start_date = selected_date()[1],
           end_date = selected_date()[2],
           level = data_levels()$selected,
+          country_iso2 = session$userData$iso2,
+          is_population = TRUE,
           auth = credentials$auth
         )
       })
 
       selected_data_elements <- mod_filter_page_server("filter_page_1", data_elements)
       custom_groups <- mod_custom_service_page_server('custom_service_page_1', data_elements)
-      # mod_service_page_server('population_page_1', data_analytics, data_levels, selected_data_elements, selected_orgs, custom_groups)
       mod_population_page_server('population_page_1', data_analytics, data_levels, selected_data_elements, selected_orgs, custom_groups)
     }
   )

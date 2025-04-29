@@ -28,6 +28,8 @@ Imports:
     khisr,
     lubridate,
     markdown,
+    memoise,
+    openxlsx,
     pkgload,
     promises,
     purrr,

@@ -39,7 +39,7 @@ organisations_select_server <- function(id, data_levels, credentials) {
       orgs <- reactive({
         req(credentials$auth, data_levels(), data_levels()$selected)
 
-        get_organisations(data_levels()$selected, credentials$auth)
+        get_cached_org_units(data_levels()$selected, credentials$auth)
       })
 
       observe({

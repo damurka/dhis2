@@ -59,8 +59,7 @@ mod_data_page_server <- function(id, credentials){
 
     mod_service_group_page_server('filter_page_1', data_levels, selected_orgs, reactive(input$logout), reactive(input$date), credentials)
     mod_population_group_page_server('population_group_page_1', data_levels, selected_orgs, reactive(input$logout), reactive(input$date), credentials)
-
-    mod_countdown_page_server("countdown_page_1", credentials)
+    mod_countdown_page_server("countdown_page_1", data_levels, reactive(input$date), credentials)
 
     observeEvent(input$logout, {
       khis_cred_clear(credentials$auth)

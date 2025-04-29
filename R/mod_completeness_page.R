@@ -8,22 +8,11 @@
 mod_completeness_page_ui <- function(id) {
   ns <- NS(id)
   withSpinner(
-    reactableOutput(ns("table"))
+    tagList(
+      uiOutput(ns("download_ui")),
+      reactableOutput(ns("table"))
+    )
   )
-  # card(
-  #   card_header(
-  #     'Service Data',
-  #     actionButton(ns('button'),
-  #                  label = 'Download as CSV',
-  #                  icon = icon("download"),
-  #                  onclick = sprintf("Reactable.downloadDataCSV('%s', 'data-completeness-%s.csv')", ns('table'), format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
-  #
-  #     )
-  #   ),
-  #   withSpinner(
-  #     reactableOutput(ns("table"))
-  #   )
-  # )
 }
 
 #' completeness_page Server Functions
@@ -91,6 +80,27 @@ mod_completeness_page_server <- function(id, datasets, data_levels, selected_dat
       columns <- reactive({
         names(data()) %>%
           str_subset('_actual$|_expected$|_reporting_rate$')
+      })
+
+      observe({
+        req(data())  # Ensure data is available
+        show_button <- nrow(data()) > 0  # Check if table has data
+
+        output$download_ui <- renderUI({
+          if (show_button) {
+            actionButton(
+              ns("button"),
+              label = "Download as CSV",
+              icon = icon("download"),
+              onclick = sprintf(
+                "Reactable.downloadDataCSV('%s', 'data-completeness-%s.csv')",
+                ns("table"), format(Sys.time(), "%Y%m%d%H%M%S")
+              )
+            )
+          } else {
+            NULL  # Hide button if no data
+          }
+        })
       })
 
       output$table <- renderReactable(

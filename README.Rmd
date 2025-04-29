@@ -22,7 +22,7 @@ output: github_document
 
 You can install the development version of `{cd2030.extractor}` like so:
 
-```{r}
+```{r, eval = FALSE}
 devtools::install_github('aphrcwaro/dhis2')
 ```
 

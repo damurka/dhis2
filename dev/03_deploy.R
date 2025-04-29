@@ -44,7 +44,7 @@ rsconnect::writeManifest()
 
 ## In command line.
 rsconnect::deployApp(
-  appName = 'dhis2',
+  appName = 'dhis2_11',
   appTitle = desc::desc_get_field("Package"),
   appFiles = c(
     # Add any additional files unique to your app here.
