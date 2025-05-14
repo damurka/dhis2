@@ -10,6 +10,8 @@ app_ui <- function(request) {
   page_fillable(
     theme = bs_theme(version = 5),
     golem_add_external_resources(),
+    useWaiter(),
+    # usei18n(i18n),
     conditionalPanel(
       condition = "output.loggedIn === false",
       style = "display: none;",
@@ -21,6 +23,7 @@ app_ui <- function(request) {
       style = "display: none;",
       class = 'bslib-page-sidebar html-fill-container',
       mod_data_page_ui("data_page_1")
+      # uiOutput("data_page_ui")
     )
   )
 }

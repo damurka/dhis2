@@ -53,6 +53,13 @@ mod_population_group_page_server <- function(id, data_levels, selected_orgs, log
 
       data_elements <- data_elements_select_server('data_elements', credentials)
 
+      orgs <- reactive({
+        req(data_levels())
+        iso2 <- session$userData$iso2
+        level <- as.integer(data_levels()$selected)
+        get_organisations(iso2, level, credentials$auth)
+      })
+
       data_analytics <- eventReactive(c(input$retrieve, logout_event), {
         req(credentials$auth, data_elements()$items, data_elements()$selected, selected_date(), data_levels()$selected)
 
@@ -61,7 +68,8 @@ mod_population_group_page_server <- function(id, data_levels, selected_orgs, log
           start_date = selected_date()[1],
           end_date = selected_date()[2],
           level = data_levels()$selected,
-          country_iso2 = session$userData$iso2,
+          orgs = orgs(),
+          data_els = data_elements()$items,
           is_population = TRUE,
           auth = credentials$auth
         )

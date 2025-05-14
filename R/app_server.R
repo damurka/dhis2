@@ -5,16 +5,26 @@
 #' @noRd
 app_server <- function(input, output, session) {
 
-  plan(multisession)
-
   credentials <- rv(auth = NULL)
 
   output$loggedIn <- reactive({
     not_null(credentials$auth) && khis_has_cred(credentials$auth)
   })
 
+  # output$loggedIn <- is_logged_in
+
   outputOptions(output, "loggedIn", suspendWhenHidden = FALSE)
+
+  # observeEvent(is_logged_in(), {
+  #   if (is_logged_in()) {
+  #     waiter_show(html = spin_fading_circles(), color = "#ffffff")
+  #   }
+  # }, ignoreInit = TRUE)
 
   mod_login_page_server("login_page_1", credentials)
   mod_data_page_server("data_page_1", credentials)
+
+  # onFlushed(function() {
+  #   waiter_hide()
+  # }, once = TRUE)
 }

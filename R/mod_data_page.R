@@ -24,6 +24,24 @@ mod_data_page_ui <- function(id) {
         format = 'M dd, yyyy'
       )
     ),
+    # header = tagList(
+    #   useWaiter(),  # only needed once per app, but safe here if reused
+    #   useHostess(), # same as above
+    #
+    #   waiterShowOnLoad(
+    #     color = '#f2f8ee',
+    #     html = tagList(
+    #       hostess_loader(
+    #         id = ns('loader'),  # important: use namespaced id!
+    #         preset = 'bubble',
+    #         text_color = '#7bc148',
+    #         class = 'label-center',
+    #         center_page = TRUE,
+    #         stroke_color = "#7bc148"
+    #       )
+    #     )
+    #   )
+    # ),
     nav_spacer(),
     nav_panel(
       title = 'Service Data',
@@ -55,7 +73,8 @@ mod_data_page_server <- function(id, credentials){
     ns <- session$ns
 
     data_levels <- data_levels_select_server('data_levels', credentials)
-    selected_orgs <- organisations_select_server('filter', data_levels, credentials)
+    selected_orgs <- organisations_select_server('orgs_filter', data_levels, credentials)
+    # selected_orgs <- reactive(NULL)
 
     mod_service_group_page_server('filter_page_1', data_levels, selected_orgs, reactive(input$logout), reactive(input$date), credentials)
     mod_population_group_page_server('population_group_page_1', data_levels, selected_orgs, reactive(input$logout), reactive(input$date), credentials)

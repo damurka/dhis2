@@ -48,6 +48,7 @@
 #' @importFrom purrr compact
 #' @importFrom purrr map
 #' @importFrom purrr map2
+#' @importFrom purrr pwalk
 #' @importFrom purrr set_names
 #' @importFrom purrr walk
 #' @importFrom rmarkdown render
@@ -59,5 +60,9 @@
 #' @importFrom stringr str_subset
 #' @importFrom stringr str_to_lower
 #' @importFrom stringr str_to_title
+#' @importFrom waiter useWaiter
+#' @importFrom waiter waiter_show
+#' @importFrom waiter spin_fading_circles
+#' @importFrom waiter waiter_hide
 ## usethis namespace: end
 NULL

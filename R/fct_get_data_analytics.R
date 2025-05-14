@@ -18,15 +18,20 @@
 #'   years as columns and values for each data element.
 #'
 #' @noRd
-get_data_analytics_ <- function(element_ids, start_date, end_date, level, country_iso2, is_population = FALSE, auth) {
+get_data_analytics_ <- function(element_ids,
+                                start_date,
+                                end_date,
+                                level,
+                                is_population = FALSE,
+                                orgs,
+                                data_els,
+                                auth) {
 
   pop_periods <- if (is_population) {
     format(seq(ymd(start_date), ymd(end_date), by = 'year'), '%Y')
   } else {
     format(seq(ymd(start_date), ymd(end_date), by = 'month'), '%Y%m')
   }
-
-  orgs <- get_organisations(level = as.integer(level), auth = auth)
 
   # Limit orgs to only those relevant to our data
   ou_count <- nrow(orgs)
@@ -62,12 +67,20 @@ get_data_analytics_ <- function(element_ids, start_date, end_date, level, countr
     bind_rows() %>%
     distinct()
 
-  # Combine data from all batches
-  data_els <- get_data_elements_(country_iso2, auth) %>%
-    distinct(element_id, element, category_id, category)
+  data_els <- data_els %>%
+    drop_na(element_id)
+
+  data <- if (is_population) {
+    data %>%
+      filter(dx %in% data_els$element_id) %>%
+      left_join(data_els, join_by(dx == element_id))
+  } else {
+    data %>%
+      filter(dx %in% data_els$element_id, co %in% data_els$category_id) %>%
+      left_join(data_els, join_by(dx == element_id, co == category_id))
+  }
 
   data %>%
-    left_join(data_els, join_by(dx == element_id, co == category_id)) %>%
     left_join(orgs, join_by(ou == id)) %>%
     mutate(
       pe = if (is_population) as.integer(pe) else ym(pe),

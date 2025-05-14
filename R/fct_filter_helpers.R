@@ -18,6 +18,24 @@ my_summary <- function(.data, data_levels, org_level, .by, ...) {
 
 }
 
+#' filter_helpers
+#'
+#' @description A fct function
+#'
+#' @return The return value, if any, from executing the function.
+#'
+#' @noRd
+my_summary2 <- function(.data, org_cols, .by, ...) {
+
+  .data %>%
+    arrange(across(any_of(c(org_cols, 'year', 'month')))) %>%
+    summarise(
+      ...,
+      .by = any_of(c(org_cols, .by))
+    )
+
+}
+
 #' @noRd
 get_organisation_cols <- function(data_levels, org_level) {
 

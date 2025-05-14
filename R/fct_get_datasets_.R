@@ -51,58 +51,65 @@ get_datasets_ <- function(data_elements, element_ids, start_date, end_date, leve
 #' }
 #'
 #' @noRd
-get_completeness_data_ <- function(mapped_data, start_date, end_date, level, auth, timeout = 60) {
-
-  completeness_data <- hfd %>%
-    select(-ends_with('french'), -contains('desc')) %>%
-    rename_with(~ gsub('_english', '', .x), 'hfd_title_english') %>%
-    filter(str_detect(hfd_sheet, '^Reporting_completeness')) %>%
-    left_join(mapped_data, join_by(hfd_id, hfd_title)) %>%
-    select(-category_id, -category)
-
-  # completeness_data <- data_elements %>%
-  #   filter(hfd_sheet == 'Reporting_completeness')
-
-  # dt_element_ids <- hfd %>%
-  #   filter(!is.na(element_id)) %>%
-  #   pull(element_id)
-
-  dt_element_ids <- completeness_data %>%
-    drop_na(element_id) %>%
-    distinct(element_id) %>%
-    pull(element_id)
-
-  completeness_values <- c("REPORTING_RATE", "ACTUAL_REPORTS", "EXPECTED_REPORTS")
-  completeness_values <- expand.grid(dt_element_ids, completeness_values) %>%
-    mutate(combined = paste(Var1, Var2, sep = ".")) %>%
-    pull(combined)
+get_completeness_data_ <- function(dataset_ids,
+                                   start_date,
+                                   end_date,
+                                   level,
+                                   orgs,
+                                   completeness_data,
+                                   auth,
+                                   timeout = 3600) {
 
   periods <- format(seq(ymd(start_date), ymd(end_date), by = "month"),"%Y%m")
 
-  data <- get_analytics(
-    dx %.d% completeness_values,
-    pe %.d% periods,
-    ou %.d% paste0('LEVEL-', level),
-    auth = auth
-  )
+  completeness_values <- c("REPORTING_RATE", "ACTUAL_REPORTS", "EXPECTED_REPORTS")
+  completeness_values <- expand.grid(dataset_ids, completeness_values) %>%
+    mutate(combined = paste(Var1, Var2, sep = ".")) %>%
+    pull(combined)
 
-  # organisations <- get_organisations_by_level(org_ids = data$ou, level = as.integer(level))
+  # Limit orgs to only those relevant to our data
+  ou_count <- nrow(orgs)
+  pe_count <- length(periods)
 
+  # Adjust batch size dynamically based on orgs & periods
+  base_batch_size <- 50  # Default batch size for small requests
+  max_requests <- 5000   # Avoid hitting API limits
+
+  effective_element_batch_size <- min(base_batch_size, max(4, floor(max_requests / (ou_count * pe_count))))
+  effective_pe_batch_size <- min(10, max(1, floor(max_requests / (ou_count * length(completeness_values)))))
+
+  # Split `element_ids` dynamically
+  element_batches <- split(completeness_values, ceiling(seq_along(completeness_values) / effective_element_batch_size))
+
+  # Split `pe` dynamically
+  pe_batches <- split(periods, ceiling(seq_along(periods) / effective_pe_batch_size))
+
+  # Create batch combinations using `tidyr::expand_grid()`
+  batch_combinations <- expand_grid(element_batch = element_batches, pe_batch = pe_batches)
+
+  data <- map2(batch_combinations$element_batch, batch_combinations$pe_batch, ~ {
+    print(.x)
+    print(.y)
+    get_analytics(
+      dx %.d% paste(.x, collapse = ";"),
+      pe %.d% paste(.y, collapse = ";"),
+      ou %.d% paste0('LEVEL-', level),
+      auth = auth
+    )
+  }) %>%
+    bind_rows() %>%
+    distinct()
 
   data <- data %>%
     separate_wider_delim(dx, delim = '.', names = c('dx', 'dataset')) %>%
     left_join(completeness_data, by = c('dx' = 'element_id'), relationship = 'many-to-many') %>%
-    # left_join(organisations, by = c('ou' = 'id')) #%>%
+    left_join(orgs, by = c('ou' = 'id')) %>%
     mutate(
       pe = ym(pe),
-      year = year(pe),
-      month = month(pe, label = TRUE, abbr = FALSE),
-      year = as.integer(year),
-      month = factor(month, levels = month.name)
+      year = as.integer(year(pe)),
+      month = factor(month(pe, label = TRUE, abbr = FALSE), levels = month.name),
     ) %>%
     select(-dx, -ou, -pe) %>%
-    # relocate(district, year, month, hfd_id, hfd_title, hfd_sheet) %>%
-    # arrange(district, year, month) %>%
     mutate(
       hfd_id = case_match(dataset,
                           'REPORTING_RATE' ~ paste0(hfd_id, '_reporting_rate'),

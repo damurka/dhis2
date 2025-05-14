@@ -38,8 +38,10 @@ organisations_select_server <- function(id, data_levels, credentials) {
 
       orgs <- reactive({
         req(credentials$auth, data_levels(), data_levels()$selected)
-
-        get_cached_org_units(data_levels()$selected, credentials$auth)
+        iso2 <- session$userData$iso2
+        get_cached_org_units(country_iso = iso2,
+                             level = as.integer(data_levels()$selected),
+                             auth = credentials$auth)
       })
 
       observe({

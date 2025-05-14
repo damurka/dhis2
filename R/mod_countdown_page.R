@@ -132,7 +132,7 @@ mod_countdown_page_server <- function(id, data_levels, selected_date, credential
             pull(hfd_id)
 
           filtered_hfd <- hfd %>%
-            filter(!hfd_id %in% mapped_ids, hfd_sheet != 'Reporting completeness') %>%
+            filter(!hfd_id %in% mapped_ids, hfd_sheet != 'Reporting_completeness') %>%
             arrange(hfd_sheet, hfd_title_english)
 
           choices <- filtered_hfd$hfd_id
@@ -237,129 +237,41 @@ mod_countdown_page_server <- function(id, data_levels, selected_date, credential
         content = function(file) {
           admin_instrunction <- 'This sheet serves to map Health districts (C) to administrative units (D) and other health system data. Please fill in the information for each column starting from Column C. Health division units name (districts) in Column C should be unique, while it is possible that a set of districts (C) correspond to the same administrative unit (D).
     CAUTION: The order and names of health division units (districts) entered in this sheet SHOULD BE the same across all the sheets. And ensure that health division units (districts) in column C match with the Coverage data into the sheets "Service_data", "Reporting_completeness" & "Population_data". Do not enter any data beyond the total number of health subnational units (districts) in your country. "Yellow cells" are "Drop-down list" options. Please use "PASTE SPECIAL" and paste "ONLY VALUES" when you copy/paste data. Do not create new columns, remove or displace existing columns.'
-          service_instruction <- 'Enter the reported number of individuals that received the specific service for each month and by subnational unit (district).
-    CAUTION: The name and order of districts SHOULD BE the same across all the sheets. Do not create a new column or displace an existing column. Do not enter any data beyond the total number of health subnational units in your country. Please use "PASTE SPECIAL" and paste "ONLY VALUES" in the appropriate cells when you copy/paste data.'
-          population_instruction <- 'In this sheet, you will compile official population data used to produce denominators by the routine health information system in your country. These data are integrated into DHIS2 or other routine health data collection systems, and are usually derived from projections by the country\'s institute of statistics and/or demographic. Please enter data by district and year from year 2019 to 2023.
-    WARNING: The order of the health districts MUST BE the same in all other sheets of this tool. Do not create new columns or move an existing column. Do not enter unnecessary data below the number of districts that exist in your country. Please use "PASTE SPECIAL" and paste "ONLY VALUES" in the appropriate cells when you copy/paste data.'
-
           wb <- createWorkbook()
 
-          org_cols <- get_organisation_cols(data_levels()$items, data_levels()$selected)
+          iso2 <- session$userData$iso2
+          level <- as.integer(data_levels()$selected)
 
-          service_mapped_dt <- hfd %>%
-            select(-ends_with('french'), -contains('desc')) %>%
-            rename_with(~ gsub('_english', '', .x), 'hfd_title_english') %>%
-            filter(str_detect(hfd_sheet, '^Service_data')) %>%
-            left_join(mapped_data(), join_by(hfd_id, hfd_title))
+          org_cols <- get_organisation_cols(data_levels()$items, level)
 
-          service_els <- service_mapped_dt %>%
-            drop_na(element_id) %>%
-            distinct(element_id) %>%
-            pull(element_id)
+          org_units <- get_organisations(iso2, level, credentials$auth)
 
-          if (length(service_els) > 0) {
-            service_dt <- get_data_analytics_(element_ids = service_els,
-                                              level = data_levels()$selected,
-                                              start_date = selected_date()[1],
-                                              end_date = selected_date()[2],
-                                              country_iso2 = session$userData$iso2,
-                                              auth = credentials$auth) %>%
-              left_join(service_mapped_dt, join_by(element, category)) %>%
-              my_summary(
-                data_levels = data_levels()$items,
-                org_level =data_levels()$selected,
-                .by = c('year', 'month', 'hfd_id', 'hfd_title', 'hfd_sheet'),
-                value = sum(value)
-              ) %>%
-              drop_na(hfd_title) %>%
-              append_missing_columns(service_mapped_dt, org_cols)
+          get_service_data(wb = wb,
+                           mapped_data = mapped_data(),
+                           start_date = selected_date()[1],
+                           end_date = selected_date()[2],
+                           org_units = org_units,
+                           org_units_headers = org_cols,
+                           credentials = credentials,
+                           level = level)
 
-            create_sheets(
-              wb = wb, .data = service_dt, header_rows = c(org_cols, 'year', 'month'),
-              instruction = service_instruction, instruction_row_height = 140
-            )
-          }
+          get_population_data(wb = wb,
+                              mapped_data = mapped_data(),
+                              start_date = selected_date()[1],
+                              end_date = selected_date()[2],
+                              org_units = org_units,
+                              org_units_headers = org_cols,
+                              credentials = credentials,
+                              level = level)
 
-          pop_mapped_dt <- hfd %>%
-            select(-ends_with('french'), -contains('desc')) %>%
-            rename_with(~ gsub('_english', '', .x), 'hfd_title_english') %>%
-            filter(str_detect(hfd_sheet, '^Population_data')) %>%
-            left_join(mapped_data(), join_by(hfd_id, hfd_title))
-
-          pop_els <- pop_mapped_dt %>%
-            drop_na(element_id) %>%
-            distinct(element_id) %>%
-            pull(element_id)
-
-          if (length(pop_els) > 0) {
-
-            pop_dt <- get_data_analytics_(element_ids = pop_els,
-                                          level = data_levels()$selected,
-                                          start_date = selected_date()[1],
-                                          end_date = selected_date()[2],
-                                          country_iso2 = session$userData$iso2,
-                                          is_population = TRUE,
-                                          auth = credentials$auth) %>%
-              left_join(pop_mapped_dt, join_by(element, category)) %>%
-              my_summary(
-                data_levels = data_levels()$items,
-                org_level =data_levels()$selected,
-                .by = c('year', 'month', 'hfd_id', 'hfd_title', 'hfd_sheet'),
-                value = sum(value)
-              ) %>%
-              drop_na(hfd_title) %>%
-              append_missing_columns(pop_mapped_dt, org_cols)
-
-            create_sheets(
-              wb = wb, .data = pop_dt, header_rows = c(org_cols, 'year'),
-              freeze_col = 3, instruction = population_instruction, instruction_row_height = 120
-            )
-          }
-
-          # dt <- get_completeness_data_(mapped_data(),
-          #                        level =data_levels()$selected,
-          #                        start_date = selected_date()[1],
-          #                        end_date = selected_date()[2],
-          #                        auth = credentials$auth)
-          # print(glimpse(dt))
-
-          completeness_mapped_dt <- hfd %>%
-            select(-ends_with('french'), -contains('desc')) %>%
-            rename_with(~ gsub('_english', '', .x), 'hfd_title_english') %>%
-            filter(str_detect(hfd_sheet, '^Reporting_completeness')) %>%
-            left_join(mapped_data(), join_by(hfd_id, hfd_title)) %>%
-            select(-category_id, -category) %>%
-            drop_na(element_id)
-
-          completeness_els <- completeness_mapped_dt %>%
-            drop_na(element_id) %>%
-            distinct(element_id) %>%
-            pull(element_id)
-
-          if (length(completeness_els) > 0) {
-
-            completeness_dt <- get_data_sets_by_level(dataset_ids = completeness_els,
-                                                      level =as.integer(data_levels()$selected),
-                                                      start_date = selected_date()[1],
-                                                      end_date = selected_date()[2],
-                                                      auth = credentials$auth) %>%
-              pivot_longer(cols = contains('report'), names_to = 'element', values_to = 'value') %>%
-              left_join(completeness_mapped_dt, join_by(dataset == element)) %>%
-              mutate(
-                hfd_id = case_match(dataset,
-                                    'REPORTING_RATE' ~ paste0(hfd_id, '_reporting_rate'),
-                                    'ACTUAL_REPORTS' ~ paste0(hfd_id, '_reporting_received'),
-                                    'EXPECTED_REPORTS' ~ paste0(hfd_id, '_reporting_expected')),
-                hfd_subtitle = case_match(dataset,
-                                          'REPORTING_RATE' ~ 'Reporting completeness rate (%)',
-                                          'ACTUAL_REPORTS' ~ 'Received number (#)',
-                                          'EXPECTED_REPORTS' ~ 'Expected number (#)')
-              )
-
-            # create_sheets(
-            #   wb = wb, .data = completeness_dt, header_rows = c(org_cols, 'year', 'month')
-            # )
-          }
+          get_completeness_data(wb = wb,
+                                mapped_data = mapped_data(),
+                                start_date = selected_date()[1],
+                                end_date = selected_date()[2],
+                                org_units = org_units,
+                                org_units_headers = org_cols,
+                                credentials = credentials,
+                                level = level)
 
           saveWorkbook(wb, file, overwrite = TRUE)
         }
