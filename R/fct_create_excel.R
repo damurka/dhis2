@@ -149,8 +149,10 @@ create_sheets <- function(wb, .data, header_rows, freeze_col = 4,
     walk(~ {
       # Extract sheet name
       sheet_name <- unique(.x$hfd_sheet)
+      print(sheet_name)
 
-      aggr_fun <- if (sheet_name == 'Admin_data') NULL else sum
+      # aggr_fun <- if (sheet_name == 'Admin_data') NULL else sum
+      aggr_fun <- sum
 
       # Prepare wide-format data
       sheet_data <- .x %>%

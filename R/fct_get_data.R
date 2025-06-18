@@ -125,24 +125,25 @@ get_service_data <- function(wb, mapped_data, start_date, end_date, org_units, o
                         level = level,
                         orgs = org_units,
                         data_els = service_data,
-                        auth = credentials$auth) %>%
-      my_summary2(
-        org_cols = org_units_headers,
-        .by = c('year', 'month', 'hfd_id', 'hfd_title', 'hfd_sheet'),
-        value = sum(value)
-      ) %>%
-      select(-element_name) %>%
-      relocate(all_of(org_units_headers), year, month, hfd_id, hfd_title, hfd_sheet) %>%
-      arrange(across(all_of(c(org_units_headers, 'year', 'month')))) %>%
-      append_missing_columns(service_data, org_units_headers)
+                        auth = credentials$auth) # %>%
+      # my_summary2(
+      #   org_cols = org_units_headers,
+      #   .by = c('year', 'month', 'hfd_id', 'hfd_title', 'hfd_sheet'),
+      #   value = sum(value)
+      # ) %>%
+      # # select(-element_name) %>%
+      # relocate(all_of(org_units_headers), year, month, hfd_id, hfd_title, hfd_sheet) %>%
+      # arrange(across(all_of(c(org_units_headers, 'year', 'month')))) %>%
+      # append_missing_columns(service_data, org_units_headers)
 
     service_instruction <- 'Enter the reported number of individuals that received the specific service for each month and by subnational unit (district).
     CAUTION: The name and order of districts SHOULD BE the same across all the sheets. Do not create a new column or displace an existing column. Do not enter any data beyond the total number of health subnational units in your country. Please use "PASTE SPECIAL" and paste "ONLY VALUES" in the appropriate cells when you copy/paste data.'
 
-    create_sheets(
-      wb = wb, .data = data, header_rows = c(org_units_headers, 'year', 'month'),
-      instruction = service_instruction, instruction_row_height = 140
-    )
+    # create_sheets(
+    #   wb = wb, .data = data, header_rows = c(org_units_headers, 'year', 'month'),
+    #   instruction = service_instruction, instruction_row_height = 140
+    # )
+    return(data)
   }
 }
 
@@ -280,9 +281,11 @@ get_completeness_data <- function(wb,
       arrange(across(all_of(c(org_units_headers, 'year', 'month')))) # %>%
       # append_missing_columns(population_data, org_units_headers)
 
-    create_sheets(
-      wb = wb, .data = data, header_rows = c(org_units_headers, 'year', 'month')
-    )
+    return(data)
+
+    # create_sheets(
+    #   wb = wb, .data = data, header_rows = c(org_units_headers, 'year', 'month')
+    # )
   }
 }
 

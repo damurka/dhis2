@@ -61,7 +61,8 @@ get_data_analytics_ <- function(element_ids,
       pe %.d% paste(.y, collapse = ";"),
       ou %.d% paste0('LEVEL-', level),
       co %.d% 'all',
-      auth = auth
+      auth = auth,
+      timeout = 3600
     )
   }) %>%
     bind_rows() %>%
@@ -76,16 +77,17 @@ get_data_analytics_ <- function(element_ids,
       left_join(data_els, join_by(dx == element_id))
   } else {
     data %>%
-      filter(dx %in% data_els$element_id, co %in% data_els$category_id) %>%
-      left_join(data_els, join_by(dx == element_id, co == category_id))
+      filter(dx %in% data_els$element_id, co %in% data_els$category_id) # %>%
+      # left_join(data_els, join_by(dx == element_id, co == category_id), relationship = 'many-to-many')
   }
 
-  data %>%
-    left_join(orgs, join_by(ou == id)) %>%
-    mutate(
-      pe = if (is_population) as.integer(pe) else ym(pe),
-      year = if (is_population) pe else year(pe),
-      month = if (is_population) NA else month(pe, label = TRUE, abbr = FALSE)
-    ) %>%
-    select(-dx, -ou, -pe, -co)
+  # data %>%
+  #   left_join(orgs, join_by(ou == id)) %>%
+  #   mutate(
+  #     pe = if (is_population) as.integer(pe) else ym(pe),
+  #     year = if (is_population) pe else year(pe),
+  #     month = if (is_population) NA else month(pe, label = TRUE, abbr = FALSE)
+  #   ) %>%
+  #   select(-dx, -ou, -pe, -co)
+  return(data)
 }

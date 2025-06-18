@@ -101,26 +101,26 @@ get_completeness_data_ <- function(dataset_ids,
     distinct()
 
   data <- data %>%
-    separate_wider_delim(dx, delim = '.', names = c('dx', 'dataset')) %>%
-    left_join(completeness_data, by = c('dx' = 'element_id'), relationship = 'many-to-many') %>%
-    left_join(orgs, by = c('ou' = 'id')) %>%
-    mutate(
-      pe = ym(pe),
-      year = as.integer(year(pe)),
-      month = factor(month(pe, label = TRUE, abbr = FALSE), levels = month.name),
-    ) %>%
-    select(-dx, -ou, -pe) %>%
-    mutate(
-      hfd_id = case_match(dataset,
-                          'REPORTING_RATE' ~ paste0(hfd_id, '_reporting_rate'),
-                          'ACTUAL_REPORTS' ~ paste0(hfd_id, '_reporting_received'),
-                          'EXPECTED_REPORTS' ~ paste0(hfd_id, '_reporting_expected')),
-      hfd_subtitle = case_match(dataset,
-                                'REPORTING_RATE' ~ 'Reporting completeness rate (%)',
-                                'ACTUAL_REPORTS' ~ 'Received number (#)',
-                                'EXPECTED_REPORTS' ~ 'Expected number (#)')
-    ) %>%
-    select(-dataset)
+    separate_wider_delim(dx, delim = '.', names = c('dx', 'dataset')) #%>%
+    # left_join(completeness_data, by = c('dx' = 'element_id'), relationship = 'many-to-many') %>%
+    # left_join(orgs, by = c('ou' = 'id')) %>%
+    # mutate(
+    #   pe = ym(pe),
+    #   year = as.integer(year(pe)),
+    #   month = factor(month(pe, label = TRUE, abbr = FALSE), levels = month.name),
+    # ) %>%
+    # select(-dx, -ou, -pe) %>%
+    # mutate(
+    #   hfd_id = case_match(dataset,
+    #                       'REPORTING_RATE' ~ paste0(hfd_id, '_reporting_rate'),
+    #                       'ACTUAL_REPORTS' ~ paste0(hfd_id, '_reporting_received'),
+    #                       'EXPECTED_REPORTS' ~ paste0(hfd_id, '_reporting_expected')),
+    #   hfd_subtitle = case_match(dataset,
+    #                             'REPORTING_RATE' ~ 'Reporting completeness rate (%)',
+    #                             'ACTUAL_REPORTS' ~ 'Received number (#)',
+    #                             'EXPECTED_REPORTS' ~ 'Expected number (#)')
+    # ) %>%
+    # select(-dataset)
 
   return(data)
 }
