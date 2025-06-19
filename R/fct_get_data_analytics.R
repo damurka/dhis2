@@ -73,8 +73,8 @@ get_data_analytics_ <- function(element_ids,
 
   data <- if (is_population) {
     data %>%
-      filter(dx %in% data_els$element_id) %>%
-      left_join(data_els, join_by(dx == element_id))
+      filter(dx %in% data_els$element_id) #%>%
+      # left_join(data_els, join_by(dx == element_id))
   } else {
     data %>%
       filter(dx %in% data_els$element_id, co %in% data_els$category_id) # %>%

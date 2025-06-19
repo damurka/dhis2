@@ -198,19 +198,20 @@ get_population_data <- function(wb, mapped_data, start_date, end_date, org_units
                                 is_population = TRUE,
                                 orgs = org_units,
                                 data_els = population_data,
-                                auth = credentials$auth) %>%
-      select(-element_name) %>%
-      relocate(all_of(org_units_headers), year, hfd_id, hfd_title, hfd_sheet) %>%
-      arrange(across(all_of(c(org_units_headers, 'year')))) %>%
-      append_missing_columns(population_data, org_units_headers)
+                                auth = credentials$auth) #%>%
+      # select(-element_name) %>%
+      # relocate(all_of(org_units_headers), year, hfd_id, hfd_title, hfd_sheet) %>%
+      # arrange(across(all_of(c(org_units_headers, 'year')))) %>%
+      # append_missing_columns(population_data, org_units_headers)
 
     population_instruction <- 'In this sheet, you will compile official population data used to produce denominators by the routine health information system in your country. These data are integrated into DHIS2 or other routine health data collection systems, and are usually derived from projections by the country\'s institute of statistics and/or demographic. Please enter data by district and year from year 2019 to 2023.
     WARNING: The order of the health districts MUST BE the same in all other sheets of this tool. Do not create new columns or move an existing column. Do not enter unnecessary data below the number of districts that exist in your country. Please use "PASTE SPECIAL" and paste "ONLY VALUES" in the appropriate cells when you copy/paste data.'
 
-    create_sheets(
-      wb = wb, .data = data, header_rows = c(org_units_headers, 'year'),
-      freeze_col = 3, instruction = population_instruction, instruction_row_height = 120
-    )
+    # create_sheets(
+    #   wb = wb, .data = data, header_rows = c(org_units_headers, 'year'),
+    #   freeze_col = 3, instruction = population_instruction, instruction_row_height = 120
+    # )
+    return(data)
   }
 }
 
